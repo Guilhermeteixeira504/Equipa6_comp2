@@ -3,7 +3,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "utilizador")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.JOINED)   // <- Mantém
 public class Utilizador {
 
     @Id
@@ -25,11 +25,10 @@ public class Utilizador {
     @Column(name = "telemovel")
     private int telemovel;
 
-    @Column(name = "tipoUtilizador", nullable = false, length = 20)
-    private String tipoUtilizador = "USER"; // valor padrão
+    @Column(name="tipoUtilizador", nullable = false, length = 20)
+    private String tipoUtilizador = "USER";
 
     public Utilizador() {}
-
     // Getters e Setters
     public long getId() { 
     	return id; 
