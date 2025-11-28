@@ -23,6 +23,10 @@ public class Instituicao {
     @JoinColumn(name = "instituicao_id") 
     private List<ProgramaVoluntariado> programas = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "programa_id")
+    private ProgramaVoluntariado programa;
+    
     public Instituicao() {
     }
 

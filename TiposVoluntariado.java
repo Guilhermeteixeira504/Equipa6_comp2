@@ -18,6 +18,10 @@ public class TiposVoluntariado {
     @OneToMany
     @JoinColumn(name = "tipo_voluntariado_id")
     private List<ProgramaVoluntariado> programas = new ArrayList<>();
+    
+    @ManyToOne
+    @JoinColumn(name = "programa_id")
+    private ProgramaVoluntariado programa;
 
     public TiposVoluntariado() {
     }

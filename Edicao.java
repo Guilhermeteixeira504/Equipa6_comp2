@@ -30,6 +30,10 @@ public class Edicao {
     @JoinColumn(name = "edicao_id")
     private List<Inscricao> inscricoes = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "programa_id")
+    private ProgramaVoluntariado programa;
+    
     public Edicao() {
     }
 

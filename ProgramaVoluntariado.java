@@ -37,7 +37,31 @@ public class ProgramaVoluntariado {
 
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Inscricao> inscricoes = new ArrayList<>();
+    
+    @OneToMany(mappedBy="programa", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Edicao> edicoes = new ArrayList<>();
+    
+    @OneToMany(mappedBy="programa", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TiposVoluntariado> tiposVolutariado = new ArrayList<>();
+    
+    @OneToMany(mappedBy="programa", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Instituicao> instituicoes = new ArrayList<>();
+    
+    @ManyToOne
+    @JoinColumn(name = "inscricoes")
+    private Inscricao incricao;
+    
+    @ManyToOne
+    @JoinColumn(name = "edicao_id")
+    private Edicao edicao;
+    
+    @ManyToOne
+    @JoinColumn(name = "instituicao_id")
+    private Instituicao instituicao;
 
+    @ManyToOne
+    @JoinColumn(name = "tipo_voluntariado_id")
+    private TiposVoluntariado tipoVoluntariado;
 	
     public ProgramaVoluntariado() {}
 
@@ -107,8 +131,33 @@ public class ProgramaVoluntariado {
         inscricoes.add(inscricao);
         inscricao.setPrograma(this); 
     }
+    
+    public List<Edicao> getEdicoes() {
+		return edicoes;
+	}
 
-    @Override
+	public void setEdicoes(List<Edicao> edicoes) {
+		this.edicoes = edicoes;
+	}
+
+	public List<TiposVoluntariado> getTiposVolutariado() {
+		return tiposVolutariado;
+	}
+
+	public void setTiposVolutariado(List<TiposVoluntariado> tiposVolutariado) {
+		this.tiposVolutariado = tiposVolutariado;
+	}
+	
+	
+	public List<Instituicao> getInstituicoes() {
+		return instituicoes;
+	}
+
+	public void setInstituicoes(List<Instituicao> instituicoes) {
+		this.instituicoes = instituicoes;
+	}
+
+	@Override
     public String toString() {
         return "ProgramaVoluntariado{" +
                 "id=" + id +
