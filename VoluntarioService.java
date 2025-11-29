@@ -1,12 +1,13 @@
 package lp.Equipa6_Comp2.service;
 
 import org.springframework.stereotype.Service;
+
 import lp.Equipa6_Comp2.entity.Voluntario;
 import lp.Equipa6_Comp2.repository.VoluntarioRepository;
 import java.util.List;
 
 @Service
-public class VoluntarioService {
+public class VoluntarioService{
 	
 	private final VoluntarioRepository voluntarioRepository;
 	
@@ -29,7 +30,6 @@ public class VoluntarioService {
 	public Voluntario updateVoluntario(Long id, Voluntario v) {
 		Voluntario existing = voluntarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Voluntário não encontrado"));
 		existing.setInscricoes(v.getInscricoes());
-		existing.setUtilizador(v.getUtilizador());
 		
 		return voluntarioRepository.save(existing);
 	}
