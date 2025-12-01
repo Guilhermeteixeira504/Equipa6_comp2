@@ -109,17 +109,19 @@ public class Main {
         
         HttpEntity<String> request = new HttpEntity<>(json, headers);
         
-        String response = rest.postForObject(BASE_URL + "/voluntariado/utilizadores/login", request, String.class);
-        
         try {
-            // faz login e recebe o objeto Utilizador
+        	// faz login e recebe o objeto Utilizador
+        	ResponseEntity<String> response = rest.exchange(BASE_URL + "/voluntariado/utilizadores/login",HttpMethod.POST,request,String.class);
+        	
+        	String responseBody = response.getBody();
+        	
         	// converter JSON → objeto
         	ObjectMapper mapper = new ObjectMapper();
-        	Utilizador utilizador = mapper.readValue(response, Utilizador.class);
+            Utilizador utilizador = mapper.readValue(responseBody, Utilizador.class);
 
             System.out.println("\nLogin efetuado com sucesso! Bem-vindo, " + utilizador.getNome() + ".");
 
-            // Agora escolhe menu com base no tipo
+            // escolhe menu com base no tipo de utilizador
             if ("ADMIN".equalsIgnoreCase(utilizador.getTipoUtilizador())) {
                 menuAdmin(utilizador);
             } else {
@@ -128,10 +130,43 @@ public class Main {
         
         } catch (Exception e) {
         	System.out.println("Credenciais inválidas!");
+        	
+        	System.out.print("Esqueceu a password? (s/n): ");
+            String opcao = ler.next();
 
+            if (opcao.equalsIgnoreCase("s")) {
+            	alterarPasswordLogin(email);
+            }
         }
         
 	}
+	
+	// no login se o utilizador introduzir uma password inválida pode alterá-la
+	private static void alterarPasswordLogin(String email) {
+        System.out.print("Introduz a nova password: ");
+        String novaPass = ler.next();
+
+        String json = """
+                {
+                   "email": "%s",
+                   "novaPassword": "%s"
+                }
+                """.formatted(email, novaPass);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<>(json, headers);
+
+        try {
+            String response = rest.exchange(BASE_URL + "/voluntariado/utilizadores/alterarpassword",HttpMethod.PUT,request,String.class).getBody();
+
+            System.out.println("Password alterada com sucesso! Tente fazer login novamente.");
+
+        } catch (Exception e) {
+            System.out.println("Erro ao alterar password: " + e.getMessage());
+        }
+    }
 			
 			
 			
@@ -269,7 +304,185 @@ public class Main {
         System.out.println(response);
     }
 	
+	private static void criarEdicao() {
+		System.out.print("Ano: ");  
+        String ano = ler.nextLine().trim();
 
+        System.out.print("Nº de vagas: ");  
+        int vagas = Integer.parseInt(ler.nextLine().trim());  // lê linha e converte
+
+        System.out.print("Data início (AAAA-MM-DD): "); 
+        LocalDate di = lerData();
+
+        System.out.print("Data fim (AAAA-MM-DD): ");    
+        LocalDate df = lerData();
+
+        System.out.print("Total de horas: ");           
+        int total = Integer.parseInt(ler.nextLine().trim());
+
+        String json = """
+        		{
+        			"ano" : "%s",
+        			"numeroVagas" : %d,
+        			"dataInicio" : "%s",
+        			"dataFim" : "%s"
+        		}
+        		""".formatted(ano,vagas,di,df,total);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        
+        HttpEntity<String> request = new HttpEntity<>(json, headers);
+        
+        String response = rest.postForObject(BASE_URL + "/voluntariado/edicoes", request, String.class);
+        
+        System.out.println("\nEdição criada:");
+        System.out.println(response);
+	}
+	
+	private static void listarProgramas() {
+		String url = BASE_URL + "/voluntariado/programasvoluntariado";
+		
+		try {
+			String response = rest.getForObject(url, String.class);
+			
+			System.out.println("\n--- Lista de Programas de Voluntariado ---");
+			
+			System.out.println(response);
+		} catch (Exception e) {
+			System.out.println("Erro ao listar programas: " + e.getMessage());
+		}
+	}
+	
+	private static void procurarProgramaPorId() {
+		System.out.print("ID do programa: ");
+        long programaId = ler.nextLong();
+        
+        String url = BASE_URL + "/voluntariado/programasvoluntariado/" + programaId;
+        
+        try {
+        	String response = rest.getForObject(url, String.class);
+            System.out.println("\n--- Programa encontrado ---");
+            System.out.println(response);
+        } catch (Exception e) {
+            System.out.println("Erro ao procurar programa: " + e.getMessage());
+        }
+	}
+	
+	private static void listarUtilizadores() {
+		String url = BASE_URL + "/voluntariado/utilizadores";
+		
+		try {
+			String response = rest.getForObject(url, String.class);
+			
+			System.out.println("\n--- Lista de Utilizadores ---");
+			
+			System.out.println(response);
+		} catch (Exception e) {
+			System.out.println("Erro ao listar utilizadores: " + e.getMessage());
+		}
+	}
+	
+	private static void listarVoluntarios() {
+		String url = BASE_URL + "/voluntariado/voluntarios";
+		
+		try {
+			String response = rest.getForObject(url, String.class);
+			
+			System.out.println("\n--- Lista de Voluntários ---");
+			
+			System.out.println(response);
+		} catch (Exception e) {
+			System.out.println("Erro ao listar voluntários: " + e.getMessage());
+		}
+	}
+	
+	private static void listarInscricoes() {
+		String url = BASE_URL + "/voluntariado/inscricoes";
+		
+		try {
+			String response = rest.getForObject(url, String.class);
+			
+			System.out.println("\n--- Lista de Inscrições ---");
+			
+			System.out.println(response);
+		} catch (Exception e) {
+			System.out.println("Erro ao listar inscrições: " + e.getMessage());
+		}
+	}
+	
+	
+	//menu Utilizador
+    private static void menuUtilizador(Utilizador u) {
+        while (true) {
+            System.out.println("\n===== MENU UTILIZADOR =====");
+            System.out.println("1) Consultar Programas de Voluntariado disponíveis");
+            System.out.println("2) Inscrever-se num Programa de Voluntariado");
+            System.out.println("3) Mudar Password");
+            System.out.println("0) Terminar sessão");
+            System.out.print("Escolha: ");
+            int opcao = ler.nextInt();
+
+            switch (opcao) {
+                case 1 -> listarProgramasDisponiveis();
+                case 2 -> inscreverPrograma(u);
+                case 3 -> alterarPassword(u);
+                case 0 -> {
+                    System.out.println(" Sessão terminada. A voltar ao menu principal...");
+                    return;
+                }
+                default -> System.out.println("Opção inválida!");
+            }
+        }
+    }
+	
+    private static void listarProgramasDisponiveis() {
+    	String url = BASE_URL + "/voluntariado/programasvoluntariado";
+		
+		try {
+			String response = rest.getForObject(url, String.class);
+			
+			System.out.println("\n--- Lista de Programas de Voluntariado ---");
+			
+			System.out.println(response);
+		} catch (Exception e) {
+			System.out.println("Erro ao listar programas: " + e.getMessage());
+		}
+    }
+    
+    private static void inscreverPrograma(Utilizador u) {
+    	
+        
+    }
+	
+	
+    public static void alterarPassword(Utilizador u) {
+    	System.out.print("Insira a nova password: ");
+        String novaPass = ler.next();
+
+        String json = """
+                {
+                   "email": "%s",
+                   "novaPassword": "%s"
+                }
+                """.formatted(u.getEmail(),novaPass);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<>(json, headers);
+
+        try {
+            String response = rest.exchange(BASE_URL + "/voluntariado/utilizadores/alterarpassword",HttpMethod.PUT,request,String.class).getBody();
+
+            System.out.println("Password alterada com sucesso!");
+
+        } catch (Exception e) {
+            System.out.println("Erro ao alterar password: " + e.getMessage());
+        }
+    }
+    
+	
 
 	private static LocalDate lerData() {
         while (true) {
