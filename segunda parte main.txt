@@ -1,0 +1,161 @@
+private static void criarEdicao() {
+		System.out.print("Ano: ");  
+        String ano = ler.nextLine().trim();
+
+        System.out.print("Nº de vagas: ");  
+        int vagas = Integer.parseInt(ler.nextLine().trim());  // lê linha e converte
+
+        System.out.print("Data início (AAAA-MM-DD): "); 
+        LocalDate di = lerData();
+
+        System.out.print("Data fim (AAAA-MM-DD): ");    
+        LocalDate df = lerData();
+
+        System.out.print("Total de horas: ");           
+        int total = Integer.parseInt(ler.nextLine().trim());
+
+        String json = """
+        		{
+        			"ano" : "%s",
+        			"numeroVagas" : %d,
+        			"dataInicio" : "%s",
+        			"dataFim" : "%s"
+        		}
+        		""".formatted(ano,vagas,di,df,total);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        
+        HttpEntity<String> request = new HttpEntity<>(json, headers);
+        
+        String response = rest.postForObject(BASE_URL + "/voluntariado/edicoes", request, String.class);
+        
+        System.out.println("\nEdição criada:");
+        System.out.println(response);
+	}
+	
+	private static void listarProgramas() {
+		String url = BASE_URL + "/voluntariado/programasvoluntariado";
+		
+		try {
+			String response = rest.getForObject(url, String.class);
+			
+			System.out.println("\n--- Lista de Programas de Voluntariado ---");
+			
+			System.out.println(response);
+		} catch (Exception e) {
+			System.out.println("Erro ao listar programas: " + e.getMessage());
+		}
+	}
+	
+	private static void procurarProgramaPorId() {
+		System.out.print("ID do programa: ");
+        long programaId = ler.nextLong();
+        
+        String url = BASE_URL + "/voluntariado/programasvoluntariado/" + programaId;
+        
+        try {
+        	String response = rest.getForObject(url, String.class);
+            System.out.println("\n--- Programa encontrado ---");
+            System.out.println(response);
+        } catch (Exception e) {
+            System.out.println("Erro ao procurar programa: " + e.getMessage());
+        }
+	}
+	
+	private static void listarUtilizadores() {
+		String url = BASE_URL + "/voluntariado/utilizadores";
+		
+		try {
+			String response = rest.getForObject(url, String.class);
+			
+			System.out.println("\n--- Lista de Utilizadores ---");
+			
+			System.out.println(response);
+		} catch (Exception e) {
+			System.out.println("Erro ao listar utilizadores: " + e.getMessage());
+		}
+	}
+	
+	private static void listarVoluntarios() {
+		String url = BASE_URL + "/voluntariado/voluntarios";
+		
+		try {
+			String response = rest.getForObject(url, String.class);
+			
+			System.out.println("\n--- Lista de Voluntários ---");
+			
+			System.out.println(response);
+		} catch (Exception e) {
+			System.out.println("Erro ao listar voluntários: " + e.getMessage());
+		}
+	}
+	
+	private static void listarInscricoes() {
+		String url = BASE_URL + "/voluntariado/inscricoes";
+		
+		try {
+			String response = rest.getForObject(url, String.class);
+			
+			System.out.println("\n--- Lista de Inscrições ---");
+			
+			System.out.println(response);
+		} catch (Exception e) {
+			System.out.println("Erro ao listar inscrições: " + e.getMessage());
+		}
+	}
+	
+	
+	//menu Utilizador
+    private static void menuUtilizador(Utilizador u) {
+        while (true) {
+            System.out.println("\n===== MENU UTILIZADOR =====");
+            System.out.println("1) Consultar Programas de Voluntariado disponíveis");
+            System.out.println("2) Inscrever-se num Programa de Voluntariado");
+            System.out.println("3) Mudar Password");
+            System.out.println("0) Terminar sessão");
+            System.out.print("Escolha: ");
+            int opcao = ler.nextInt();
+
+            switch (opcao) {
+                case 1 -> listarProgramasDisponiveis();
+                case 2 -> inscreverPrograma(u);
+                case 3 -> alterarPassword();
+                case 0 -> {
+                    System.out.println(" Sessão terminada. A voltar ao menu principal...");
+                    return;
+                }
+                default -> System.out.println("Opção inválida!");
+            }
+        }
+    }
+	
+    private static void listarProgramasDisponiveis() {
+    	String url = BASE_URL + "/voluntariado/programasvoluntariado";
+		
+		try {
+			String response = rest.getForObject(url, String.class);
+			
+			System.out.println("\n--- Lista de Programas de Voluntariado ---");
+			
+			System.out.println(response);
+		} catch (Exception e) {
+			System.out.println("Erro ao listar programas: " + e.getMessage());
+		}
+    }
+
+	
+    public static void alterarPassword() {
+    	
+    }
+
+	
+
+	private static LocalDate lerData() {
+        while (true) {
+            try { return LocalDate.parse(ler.nextLine()); }
+            catch (DateTimeParseException e) { System.out.print("Data inválida (formato AAAA-MM-DD): "); }
+        }
+    }
+
+}
